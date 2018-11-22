@@ -5,4 +5,5 @@ For Verification: Unsafe Access to Shared Memory Without Locking
 - These are trial implementations of parallel access to shared memory causing data races intentionally, **in Rust.** 
 
 ### Reference
-- [HOGWILD!](https://arxiv.org/abs/1106.5730)
+- [HOGWILD!: A Lock-Free Approach to Parallelizing Stochastic Gradient Descent
+](https://arxiv.org/abs/1106.5730)

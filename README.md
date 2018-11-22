@@ -7,3 +7,4 @@ For Verification: Unsafe Access to Shared Memory Without Locking
 ### Reference
 - [HOGWILD!: A Lock-Free Approach to Parallelizing Stochastic Gradient Descent
 ](https://arxiv.org/abs/1106.5730)
+- [finalfrontier](https://github.com/danieldk/finalfrontier)

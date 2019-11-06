@@ -2,6 +2,7 @@
 name = "before-hogwild"
 version = "0.1.0"
 authors = ["ctylim"]
+edition = "2018"
 
 [dependencies]
 ndarray = "0.12.0"

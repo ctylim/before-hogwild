@@ -1,5 +1,3 @@
-extern crate ndarray;
-
 use std::cell::UnsafeCell;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
@@ -44,5 +42,4 @@ impl<T> DerefMut for Hogwild<T> {
 }
 
 unsafe impl<T> Send for Hogwild<T> {}
-
 unsafe impl<T> Sync for Hogwild<T> {}

@@ -1,21 +1,54 @@
-extern crate ndarray;
-extern crate rayon;
+#[macro_use]
+extern crate lazy_static;
 
-pub mod hogwild;
-use hogwild::Hogwild;
-use rayon::prelude::*;
+use rand::Rng;
+use std::cell::UnsafeCell;
+use std::sync::mpsc;
+use std::sync::Arc;
 
-fn main() {
-    let sz = 50000000;
-    let mut a = vec![0; sz];
-    for i in 0..sz {
-        a[i] = i;
+#[derive(Clone)]
+struct Hogwild<T>(Arc<UnsafeCell<T>>);
+
+impl<T> Hogwild<T> {
+    pub fn new(target: T) -> Hogwild<T> {
+        Hogwild(Arc::new(UnsafeCell::new(target)))
     }
 
-    let hog = Hogwild::new(vec![0; 5]);
+    pub fn get(&self) -> &mut T {
+        let ptr = self.0.as_ref().get();
+        unsafe { &mut *ptr }
+    }
+}
 
-    a.par_iter().for_each(|x| hog.get()[x % 5 as usize] += 1);
-    println!("{:?}", hog.get());
+unsafe impl<T> Send for Hogwild<T> {}
+unsafe impl<T> Sync for Hogwild<T> {}
 
-    println!("hog:{:?}", *hog);
+lazy_static! {
+    static ref MODEL: Hogwild<Vec<i32>> = { Hogwild::new(vec![0; 500]) };
+}
+
+fn update_model(model: &mut Vec<i32>) {
+    let mut rng = rand::thread_rng();
+    let r = rng.gen::<usize>() % 500;
+    model[r] += 1
+}
+
+fn main() {
+    let (tx, rx) = mpsc::channel();
+    for _ in 0..5000000 {
+        let tx = tx.clone();
+        rayon::spawn(move || {
+            update_model(MODEL.get());
+            tx.send(()).unwrap();
+        })
+    }
+    for _ in 0..5000000 {
+        rx.recv().unwrap();
+    }
+    println!("hog: {:?}", MODEL.get());
+    let mut sum = 0;
+    for i in 0..500 {
+        sum += MODEL.get()[i];
+    }
+    println!("sum: {}", sum);
 }

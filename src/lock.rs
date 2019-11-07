@@ -11,6 +11,7 @@ fn update_model(model: &mut Vec<i64>) {
 }
 
 fn main() {
+    println!("threads: {}", rayon::current_num_threads());
     let k: usize = 1000;
     let n = 10000000;
     let model = Arc::new(RwLock::new(vec![0; k]));

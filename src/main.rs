@@ -35,6 +35,7 @@ fn main() {
     lazy_static! {
         static ref MODEL: Hogwild<Vec<i64>> = { Hogwild::new(vec![0; 1000]) };
     }
+    println!("threads: {}", rayon::current_num_threads());
     let k = 1000;
     let n = 10000000;
     let (tx, rx) = mpsc::channel();

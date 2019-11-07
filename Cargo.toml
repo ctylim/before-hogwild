@@ -17,3 +17,7 @@ path = "src/main.rs"
 [[bin]]
 name = "lock"
 path = "src/lock.rs"
+
+[[bin]]
+name = "single"
+path = "src/single.rs"

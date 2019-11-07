@@ -23,31 +23,34 @@ impl<T> Hogwild<T> {
 unsafe impl<T> Send for Hogwild<T> {}
 unsafe impl<T> Sync for Hogwild<T> {}
 
-lazy_static! {
-    static ref MODEL: Hogwild<Vec<i32>> = { Hogwild::new(vec![0; 500]) };
-}
-
-fn update_model(model: &mut Vec<i32>) {
-    let mut rng = rand::thread_rng();
-    let r = rng.gen::<usize>() % 500;
-    model[r] += 1
+fn update_model(model: &mut Vec<i64>) {
+    for _ in 0..1000 {
+        let mut rng = rand::thread_rng();
+        let r = rng.gen::<usize>() % 1000;
+        model[r] += 1
+    }
 }
 
 fn main() {
+    lazy_static! {
+        static ref MODEL: Hogwild<Vec<i64>> = { Hogwild::new(vec![0; 1000]) };
+    }
+    let k = 1000;
+    let n = 10000000;
     let (tx, rx) = mpsc::channel();
-    for _ in 0..5000000 {
+    for _ in 0..n {
         let tx = tx.clone();
         rayon::spawn(move || {
             update_model(MODEL.get());
             tx.send(()).unwrap();
         })
     }
-    for _ in 0..5000000 {
+    for _ in 0..n {
         rx.recv().unwrap();
     }
     println!("hog: {:?}", MODEL.get());
     let mut sum = 0;
-    for i in 0..500 {
+    for i in 0..k {
         sum += MODEL.get()[i];
     }
     println!("sum: {}", sum);

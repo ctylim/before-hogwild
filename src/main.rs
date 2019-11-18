@@ -24,13 +24,12 @@ unsafe impl<T> Send for Hogwild<T> {}
 unsafe impl<T> Sync for Hogwild<T> {}
 
 fn update_model(model: &mut Vec<i64>) {
-    for _ in 0..1000 {
+    for _ in 0..100 {
         let mut rng = rand::thread_rng();
         let r = rng.gen::<usize>() % 1000;
         model[r] += 1
     }
 }
-
 fn main() {
     lazy_static! {
         static ref MODEL: Hogwild<Vec<i64>> = { Hogwild::new(vec![0; 1000]) };

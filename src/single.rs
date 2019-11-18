@@ -1,7 +1,7 @@
 use rand::Rng;
 
 fn update_model(model: &mut Vec<i64>) {
-    for _ in 0..1000 {
+    for _ in 0..100 {
         let mut rng = rand::thread_rng();
         let r = rng.gen::<usize>() % 1000;
         model[r] += 1

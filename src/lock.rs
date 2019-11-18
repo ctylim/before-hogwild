@@ -2,11 +2,12 @@ use rand::Rng;
 use std::sync::mpsc;
 use std::sync::{Arc, RwLock};
 
-fn update_model(model: &mut Vec<i64>) {
+fn update_model(model: &Vec<RwLock<i64>>) {
     for _ in 0..1000 {
         let mut rng = rand::thread_rng();
         let r = rng.gen::<usize>() % 1000;
-        model[r] += 1
+        let mut m = model[r].write().unwrap();
+        *m += 1;
     }
 }
 
@@ -14,25 +15,23 @@ fn main() {
     println!("threads: {}", rayon::current_num_threads());
     let k: usize = 1000;
     let n = 10000000;
-    let model = Arc::new(RwLock::new(vec![0; k]));
+    let model: Arc<Vec<RwLock<i64>>> = Arc::new((0..k).map(|_| RwLock::new(0)).collect());
     let (tx, rx) = mpsc::channel();
     for _ in 0..n {
         let m = model.clone();
         let tx = tx.clone();
         rayon::spawn(move || {
-            let mut m = m.write().unwrap();
-            update_model(&mut *m);
+            update_model(&*m);
             tx.send(()).unwrap();
         })
     }
     for _ in 0..n {
         rx.recv().unwrap();
     }
-    let m = model.read().unwrap();
-    println!("model: {:?}", *m);
+    println!("model: {:?}", *model);
     let mut sum = 0;
     for i in 0..k {
-        sum += &m[i];
+        sum += *model[i].read().unwrap();
     }
     println!("sum: {}", sum);
 }
